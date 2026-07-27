@@ -1,11 +1,48 @@
 #!/bin/bash
 
 # EduConnect - Start Script
-# Kills any existing processes on the frontend and backend ports, then starts both
+# Checks for git updates, then starts both frontend and backend
 
 FRONTEND_PORT=3000
 BACKEND_PORT=5000
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+echo "🔍 Checking for updates..."
+
+# Fetch latest from remote (silently)
+git fetch origin 2>/dev/null
+
+# Get current branch
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+
+# Compare local vs remote
+LOCAL=$(git rev-parse HEAD 2>/dev/null)
+REMOTE=$(git rev-parse "origin/$BRANCH" 2>/dev/null)
+
+if [ "$LOCAL" != "$REMOTE" ] && [ -n "$REMOTE" ]; then
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  ⚠️  UPDATE AVAILABLE"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo "  Branch:    $BRANCH"
+  echo "  Local:     $(echo $LOCAL | head -c 8)"
+  echo "  Remote:    $(echo $REMOTE | head -c 8)"
+  echo ""
+  echo "  Run the following to update:"
+  echo "    git pull origin $BRANCH"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  
+  # Ask user if they want to continue with outdated version
+  read -p "  Continue with current version? (y/N): " CONTINUE
+  if [ "$CONTINUE" != "y" ] && [ "$CONTINUE" != "Y" ]; then
+    echo "  ❌ Aborted. Please run 'git pull origin $BRANCH' and try again."
+    exit 1
+  fi
+  echo ""
+else
+  echo "  ✅ You are up to date with origin/$BRANCH"
+  echo ""
+fi
 
 echo "🧹 Cleaning up existing processes..."
 
