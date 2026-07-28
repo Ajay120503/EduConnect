@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { MapPin, DollarSign, Calendar, Mail } from "lucide-react";
+import { MapPin, DollarSign, Calendar, Mail, Users } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import API from "../utils/axios";
 import toast from "react-hot-toast";
@@ -32,6 +32,11 @@ const JobDetail = () => {
       toast.error(err.response?.data?.message || "Failed to apply");
     }
   };
+
+  const isJobPoster = job?.postedBy?._id === user?._id;
+  const isFaculty = ["teacher", "professor", "hod", "principal"].includes(
+    user?.role
+  );
 
   if (loading) return <div className="max-w-2xl mx-auto p-6">Loading...</div>;
   if (!job)
@@ -75,6 +80,21 @@ const JobDetail = () => {
           <Mail className="w-4 h-4" />
           {job.contactEmail}
         </div>
+
+        {/* Faculty actions */}
+        {isJobPoster && isFaculty && (
+          <div className="mt-6 space-y-3">
+            <Link
+              to={`/jobs/${job._id}/applicants`}
+              className="btn btn-primary w-full gap-2"
+            >
+              <Users className="w-4 h-4" />
+              View Applicants ({job.applicants?.length || 0})
+            </Link>
+          </div>
+        )}
+
+        {/* Student actions */}
         {user?.role === "student" && (
           <button onClick={handleApply} className="btn btn-primary mt-6 w-full">
             Apply Now

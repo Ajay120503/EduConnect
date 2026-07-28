@@ -13,7 +13,11 @@ const {
   getApplicants,
   updateApplicationStatus,
   getMyApplications,
+  getMyJobs,
 } = require('../controllers/job.controller');
+
+// My jobs routes (MUST be before /:id to avoid route conflicts)
+router.get('/my/list', authMiddleware, getMyJobs);
 
 // Application routes (MUST be before /:id to avoid route conflicts)
 router.get('/applications/my', authMiddleware, getMyApplications);

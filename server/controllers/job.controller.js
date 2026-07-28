@@ -402,6 +402,32 @@ const getMyApplications = async (req, res) => {
   }
 };
 
+// @desc    Get jobs posted by current user
+// @route   GET /api/jobs/my/list
+const getMyJobs = async (req, res) => {
+  try {
+    const jobs = await JobPost.find({ postedBy: req.user._id })
+      .populate('postedBy', 'name profilePic role category institutionName')
+      .sort({ createdAt: -1 });
+
+    // Get application counts for each job
+    const jobsWithCounts = await Promise.all(
+      jobs.map(async (job) => {
+        const applicationCount = await Application.countDocuments({ jobPost: job._id });
+        return {
+          ...job.toObject(),
+          applicationCount,
+        };
+      })
+    );
+
+    res.json({ success: true, jobs: jobsWithCounts });
+  } catch (error) {
+    console.error('Get my jobs error:', error);
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
+
 module.exports = {
   getJobs,
   createJob,
@@ -412,4 +438,5 @@ module.exports = {
   getApplicants,
   updateApplicationStatus,
   getMyApplications,
+  getMyJobs,
 };

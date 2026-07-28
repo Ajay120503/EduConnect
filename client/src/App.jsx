@@ -28,6 +28,7 @@ import Feed from "./pages/Feed";
 import Explore from "./pages/Explore";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
+import JobApplicants from "./pages/JobApplicants";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import Chat from "./pages/Chat";
@@ -123,6 +124,10 @@ function App() {
                           <Route path="/explore" element={<Explore />} />
                           <Route path="/jobs" element={<Jobs />} />
                           <Route path="/jobs/:id" element={<JobDetail />} />
+                          <Route
+                            path="/jobs/:id/applicants"
+                            element={<JobApplicants />}
+                          />
                           <Route path="/profile/:id" element={<Profile />} />
                           <Route
                             path="/edit-profile"
