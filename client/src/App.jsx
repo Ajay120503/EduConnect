@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useEffect, useState } from "react";
+import { GraduationCap } from "lucide-react";
 import useAuthStore from "./store/authStore";
 import { SocketProvider } from "./context/SocketContext";
 
@@ -58,6 +59,9 @@ function App() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-base-100">
         <div className="text-center">
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/25">
+            <GraduationCap className="w-8 h-8 text-white" />
+          </div>
           <h1 className="text-3xl font-bold text-primary font-heading">
             EduConnect
           </h1>

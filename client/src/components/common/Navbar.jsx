@@ -7,6 +7,7 @@ import {
   LogOut,
   User,
   Settings,
+  GraduationCap,
 } from "lucide-react";
 import useAuthStore from "../../store/authStore";
 
@@ -27,7 +28,7 @@ const Navbar = () => {
       {/* Logo */}
       <Link to="/feed" className="flex items-center gap-2">
         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-lg">E</span>
+          <GraduationCap className="w-4.5 h-4.5 text-white" />
         </div>
         <span className="text-xl font-bold text-primary font-heading hidden lg:block">
           EduConnect
