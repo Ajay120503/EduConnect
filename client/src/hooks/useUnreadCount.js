@@ -44,8 +44,11 @@ const useUnreadCount = () => {
       setNotificationCount((prev) => prev + 1);
     };
 
-    const handleMessage = () => {
-      setMessageCount((prev) => prev + 1);
+    const handleMessage = (message) => {
+      // Only increment for messages from other users, not self-sent
+      if (message.sender?._id !== user?._id && message.sender !== user?._id) {
+        setMessageCount((prev) => prev + 1);
+      }
     };
 
     socket.current.on("notification", handleNotification);
