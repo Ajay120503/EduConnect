@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/auth.middleware');
-const { uploadImage, uploadPDF } = require('../middlewares/upload.middleware');
+const { uploadProfile } = require('../middlewares/upload.middleware');
 const {
   getUserProfile,
   updateProfile,
@@ -22,7 +22,7 @@ router.get('/:id/followers', getFollowers);
 router.get('/:id/following', getFollowing);
 
 // Protected routes
-router.put('/:id', authMiddleware, uploadImage.fields([
+router.put('/:id', authMiddleware, uploadProfile.fields([
   { name: 'profilePic', maxCount: 1 },
   { name: 'institutionPic', maxCount: 1 },
   { name: 'resume', maxCount: 1 }

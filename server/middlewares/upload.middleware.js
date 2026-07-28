@@ -42,6 +42,23 @@ const chatFileFilter = (req, file, cb) => {
   }
 };
 
+// File filter for profile uploads (images + PDF for resume)
+const profileFileFilter = (req, file, cb) => {
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'application/pdf',
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Please upload only images or PDF files.'), false);
+  }
+};
+
 // Multer instances
 const uploadImage = multer({
   storage,
@@ -95,11 +112,19 @@ const deleteFromCloudinary = async (publicId) => {
   }
 };
 
+// Multer instance for profile updates (images + PDF for resume)
+const uploadProfile = multer({
+  storage,
+  fileFilter: profileFileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
+
 module.exports = {
   uploadImage,
   uploadPDF,
   uploadChatFile,
   uploadPostImages,
+  uploadProfile,
   uploadToCloudinary,
   deleteFromCloudinary,
 };
