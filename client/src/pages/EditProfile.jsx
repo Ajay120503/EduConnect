@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, X, Plus, Upload } from "lucide-react";
+import { Camera, X, Upload } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import API from "../utils/axios";
 import toast from "react-hot-toast";
@@ -435,7 +435,7 @@ const EditProfile = () => {
               <input
                 type="file"
                 className="hidden"
-                accept=".pdf"
+                accept=".pdf,image/*"
                 onChange={(e) => setResumeFile(e.target.files[0])}
               />
             </label>
