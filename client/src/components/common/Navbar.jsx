@@ -10,11 +10,13 @@ import {
   GraduationCap,
 } from "lucide-react";
 import useAuthStore from "../../store/authStore";
+import useUnreadCount from "../../hooks/useUnreadCount";
 
 const Navbar = () => {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const { notificationCount, messageCount } = useUnreadCount();
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -53,15 +55,25 @@ const Navbar = () => {
       <div className="flex items-center gap-1">
         <Link
           to="/notifications"
-          className="btn btn-ghost btn-circle btn-sm hover:bg-primary/10"
+          className="btn btn-ghost btn-circle btn-sm hover:bg-primary/10 relative"
         >
           <Bell className="w-5 h-5" />
+          {notificationCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+              {notificationCount > 9 ? "9+" : notificationCount}
+            </span>
+          )}
         </Link>
         <Link
           to="/chat"
-          className="btn btn-ghost btn-circle btn-sm hover:bg-primary/10"
+          className="btn btn-ghost btn-circle btn-sm hover:bg-primary/10 relative"
         >
           <MessageCircle className="w-5 h-5" />
+          {messageCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+              {messageCount > 9 ? "9+" : messageCount}
+            </span>
+          )}
         </Link>
 
         <div className="dropdown dropdown-end">

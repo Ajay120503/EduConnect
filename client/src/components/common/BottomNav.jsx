@@ -1,18 +1,23 @@
 import { NavLink } from "react-router-dom";
-import { Home, Compass, Briefcase, User, PlusCircle } from "lucide-react";
-import useAuthStore from "../../store/authStore";
+import { Home, Compass, Bell, MessageCircle, PlusCircle } from "lucide-react";
 import { useState } from "react";
 import CreatePostModal from "../post/CreatePostModal";
+import useUnreadCount from "../../hooks/useUnreadCount";
 
 const BottomNav = () => {
-  const { user } = useAuthStore();
   const [showCreatePost, setShowCreatePost] = useState(false);
+  const { notificationCount, messageCount } = useUnreadCount();
 
   const navItems = [
     { to: "/feed", icon: Home, label: "Home" },
     { to: "/explore", icon: Compass, label: "Explore" },
-    { to: "/jobs", icon: Briefcase, label: "Jobs" },
-    { to: `/profile/${user?._id}`, icon: User, label: "Profile" },
+    {
+      to: "/notifications",
+      icon: Bell,
+      label: "Alerts",
+      badge: notificationCount,
+    },
+    { to: "/chat", icon: MessageCircle, label: "Chat", badge: messageCount },
   ];
 
   return (
@@ -33,11 +38,13 @@ const BottomNav = () => {
             >
               {({ isActive }) => (
                 <>
-                  <item.icon
-                    className={`w-6 h-6 transition-transform ${
-                      isActive ? "scale-110" : ""
-                    }`}
-                  />
+                  <div className="relative">
+                    <item.icon
+                      className={`w-6 h-6 transition-transform ${
+                        isActive ? "scale-110" : ""
+                      }`}
+                    />
+                  </div>
                   <span className="text-[10px] font-medium leading-tight">
                     {item.label}
                   </span>
@@ -73,11 +80,24 @@ const BottomNav = () => {
             >
               {({ isActive }) => (
                 <>
-                  <item.icon
-                    className={`w-6 h-6 transition-transform ${
-                      isActive ? "scale-110" : ""
-                    }`}
-                  />
+                  <div className="relative">
+                    <item.icon
+                      className={`w-6 h-6 transition-transform ${
+                        isActive ? "scale-110" : ""
+                      }`}
+                    />
+                    {item.badge > 0 && (
+                      <span
+                        className={`absolute -top-1 -right-1.5 w-4 h-4 text-[8px] font-bold rounded-full flex items-center justify-center shadow-sm text-white ${
+                          item.to === "/notifications"
+                            ? "bg-error"
+                            : "bg-primary"
+                        }`}
+                      >
+                        {item.badge > 9 ? "9+" : item.badge}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[10px] font-medium leading-tight">
                     {item.label}
                   </span>
