@@ -40,7 +40,7 @@ app.use(
 // CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -150,7 +150,7 @@ const startServer = async () => {
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
       console.log(`API URL: http://localhost:${PORT}/api`);
-      console.log(`Client URL: ${process.env.CLIENT_URL || 'http://localhost:3000'}`);
+      console.log(`Client URL: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error.message);

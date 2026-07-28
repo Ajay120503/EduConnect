@@ -3,7 +3,7 @@
 # EduConnect - Start Script
 # Checks for git updates, then starts both frontend and backend
 
-FRONTEND_PORT=3000
+FRONTEND_PORT=5173
 BACKEND_PORT=5000
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -88,7 +88,7 @@ echo ""
 cd "$PROJECT_DIR/server" && node server.js &
 BACKEND_PID=$!
 
-# Start frontend on port 3000 (avoids PWA cache conflicts)
+# Start frontend on port 5173 (avoids PWA cache conflicts)
 cd "$PROJECT_DIR/client" && npx vite --host --port $FRONTEND_PORT &
 FRONTEND_PID=$!
 
