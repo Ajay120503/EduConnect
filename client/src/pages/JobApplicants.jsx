@@ -10,6 +10,17 @@ import {
   UserCheck,
   Clock,
   GraduationCap,
+  Briefcase,
+  FileText,
+  Globe,
+  Award,
+  Heart,
+  Calendar,
+  Download,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
 } from "lucide-react";
 import API from "../utils/axios";
 import toast from "react-hot-toast";
@@ -23,6 +34,278 @@ const statusColors = {
 };
 
 const statusSteps = ["applied", "reviewed", "shortlisted", "selected"];
+
+const ApplicantCard = ({ app, onStatusUpdate }) => {
+  const [expanded, setExpanded] = useState(false);
+  const a = app.applicant || {};
+
+  return (
+    <div className="card bg-base-100 border border-base-300/50 shadow-sm hover:shadow-md transition-all">
+      {/* Compact Header */}
+      <div className="p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+          {/* Avatar & Basic Info */}
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-14 h-14 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 ring-2 ring-base-100 shadow-sm">
+              {a?.profilePic?.url ? (
+                <img
+                  src={a.profilePic.url}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-primary font-bold text-xl">
+                  {a?.name?.charAt(0)?.toUpperCase() || "?"}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Link
+                  to={`/profile/${a?._id}`}
+                  className="font-semibold text-base hover:text-primary transition-colors"
+                >
+                  {a?.name || "Unknown"}
+                </Link>
+                <span
+                  className={`badge badge-sm ${
+                    statusColors[app.status] || "badge-ghost"
+                  } font-medium`}
+                >
+                  {app.status}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap text-sm text-base-content/50">
+                {a?.educationLevel && (
+                  <span className="flex items-center gap-1">
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    {a.educationLevel}
+                  </span>
+                )}
+                {a?.profession && <span>· {a.profession}</span>}
+                {a?.city && a?.state && (
+                  <span>
+                    · {a.city}, {a.state}
+                  </span>
+                )}
+              </div>
+              {a?.bio && (
+                <p className="text-sm text-base-content/60 mt-1.5 line-clamp-2">
+                  {a.bio}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 flex-shrink-0">
+            {/* Status update buttons */}
+            <div className="flex items-center gap-1">
+              {statusSteps.map((step) => {
+                const currentIdx = statusSteps.indexOf(app.status);
+                const stepIdx = statusSteps.indexOf(step);
+                const isPast = currentIdx >= stepIdx;
+                return (
+                  <button
+                    key={step}
+                    onClick={() => onStatusUpdate(app._id, step)}
+                    disabled={step === app.status}
+                    title={`Mark as ${step}`}
+                    className={`btn btn-xs btn-circle transition-all ${
+                      step === app.status
+                        ? "btn-primary"
+                        : isPast
+                        ? "btn-ghost text-primary/40"
+                        : "btn-ghost text-base-content/20 hover:text-primary"
+                    }`}
+                  >
+                    {step === "selected" ? (
+                      <CheckCircle className="w-3.5 h-3.5" />
+                    ) : (
+                      <Clock className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                );
+              })}
+              {app.status !== "rejected" && (
+                <button
+                  onClick={() => onStatusUpdate(app._id, "rejected")}
+                  title="Reject"
+                  className="btn btn-xs btn-circle btn-ghost text-error/50 hover:text-error"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="btn btn-xs btn-ghost gap-1"
+            >
+              {expanded ? (
+                <>
+                  Less <ChevronUp className="w-3 h-3" />
+                </>
+              ) : (
+                <>
+                  Details <ChevronDown className="w-3 h-3" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Skills */}
+        {a?.skills?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {a.skills.map((skill, i) => (
+              <span
+                key={i}
+                className="badge badge-sm badge-soft badge-primary text-xs"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Expanded Details */}
+      {expanded && (
+        <div className="border-t border-base-200 px-5 py-4 space-y-4">
+          {/* Summary stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {a?.age && (
+              <div className="bg-base-200/50 rounded-lg p-3 text-center">
+                <Calendar className="w-4 h-4 mx-auto text-primary mb-1" />
+                <p className="text-xs text-base-content/40">Age</p>
+                <p className="text-sm font-semibold">{a.age}</p>
+              </div>
+            )}
+            {a?.experience > 0 && (
+              <div className="bg-base-200/50 rounded-lg p-3 text-center">
+                <Briefcase className="w-4 h-4 mx-auto text-primary mb-1" />
+                <p className="text-xs text-base-content/40">Experience</p>
+                <p className="text-sm font-semibold">{a.experience} yrs</p>
+              </div>
+            )}
+            {a?.educationLevel && (
+              <div className="bg-base-200/50 rounded-lg p-3 text-center">
+                <GraduationCap className="w-4 h-4 mx-auto text-primary mb-1" />
+                <p className="text-xs text-base-content/40">Education</p>
+                <p className="text-sm font-semibold capitalize">
+                  {a.educationLevel}
+                </p>
+              </div>
+            )}
+            {a?.subject && (
+              <div className="bg-base-200/50 rounded-lg p-3 text-center">
+                <BookOpen className="w-4 h-4 mx-auto text-primary mb-1" />
+                <p className="text-xs text-base-content/40">Subject</p>
+                <p className="text-sm font-semibold">{a.subject}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Qualifications */}
+          {a?.qualifications?.length > 0 && (
+            <div>
+              <h4 className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Award className="w-3.5 h-3.5" /> Qualifications
+              </h4>
+              <div className="flex flex-wrap gap-1.5">
+                {a.qualifications.map((q, i) => (
+                  <span key={i} className="badge badge-sm badge-outline">
+                    {q}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Interests */}
+          {a?.interests?.length > 0 && (
+            <div>
+              <h4 className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Heart className="w-3.5 h-3.5" /> Interests
+              </h4>
+              <div className="flex flex-wrap gap-1.5">
+                {a.interests.map((interest, i) => (
+                  <span key={i} className="badge badge-sm badge-ghost">
+                    {interest}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Cover Letter */}
+          {app.coverLetter && (
+            <div>
+              <h4 className="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5" /> Cover Letter
+              </h4>
+              <p className="text-sm text-base-content/70 bg-base-200/50 rounded-lg p-3 whitespace-pre-wrap">
+                {app.coverLetter}
+              </p>
+            </div>
+          )}
+
+          {/* Cover Letter File */}
+          {app.coverLetterFile?.url && (
+            <a
+              href={app.coverLetterFile.url}
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-outline btn-xs gap-1.5"
+            >
+              <FileText className="w-3.5 h-3.5" /> View Cover Letter Attachment
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          )}
+
+          {/* Links & Actions */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-base-200">
+            <a
+              href={`mailto:${a?.email}`}
+              className="btn btn-primary btn-xs gap-1.5"
+            >
+              <Mail className="w-3.5 h-3.5" /> {a?.email || "Email"}
+            </a>
+            {a?.resumeUrl && (
+              <a
+                href={a.resumeUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-outline btn-xs gap-1.5"
+              >
+                <Download className="w-3.5 h-3.5" /> Resume
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+            {a?.linkedinUrl && (
+              <a
+                href={a.linkedinUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-outline btn-xs gap-1.5"
+              >
+                <Globe className="w-3.5 h-3.5" /> LinkedIn
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+            <Link
+              to={`/profile/${a?._id}`}
+              className="btn btn-ghost btn-xs gap-1.5"
+            >
+              <Eye className="w-3.5 h-3.5" /> Full Profile
+            </Link>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const JobApplicants = () => {
   const { id } = useParams();
@@ -61,7 +344,7 @@ const JobApplicants = () => {
           app._id === applicationId ? { ...app, status } : app
         )
       );
-      toast.success(`Application ${status}`);
+      toast.success(`Application marked as ${status}`);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update status");
     }
@@ -75,7 +358,7 @@ const JobApplicants = () => {
           {[1, 2, 3].map((i) => (
             <div key={i} className="card border border-base-300/50 p-5">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full skeleton"></div>
+                <div className="w-14 h-14 rounded-full skeleton"></div>
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-32 skeleton rounded"></div>
                   <div className="h-3 w-48 skeleton rounded"></div>
@@ -103,10 +386,10 @@ const JobApplicants = () => {
     <div className="max-w-4xl mx-auto p-4 md:p-6">
       {/* Header */}
       <Link
-        to="/jobs"
+        to={`/jobs/${id}`}
         className="text-primary text-sm flex items-center gap-1 mb-4 hover:underline"
       >
-        <ArrowLeft className="w-4 h-4" /> Back to Jobs
+        <ArrowLeft className="w-4 h-4" /> Back to Job
       </Link>
 
       <div className="card bg-base-100 border border-base-300/50 p-5 mb-6">
@@ -162,137 +445,11 @@ const JobApplicants = () => {
       ) : (
         <div className="space-y-4">
           {applications.map((app) => (
-            <div
+            <ApplicantCard
               key={app._id}
-              className="card bg-base-100 border border-base-300/50 shadow-sm hover:shadow-md transition-all p-5"
-            >
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                {/* Applicant Info */}
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 ring-2 ring-base-100 shadow-sm">
-                    {app.applicant?.profilePic?.url ? (
-                      <img
-                        src={app.applicant.profilePic.url}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-primary font-bold text-lg">
-                        {app.applicant?.name?.charAt(0)?.toUpperCase() || "?"}
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <Link
-                      to={`/profile/${app.applicant?._id}`}
-                      className="font-semibold text-sm hover:text-primary transition-colors"
-                    >
-                      {app.applicant?.name || "Unknown"}
-                    </Link>
-                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                      {app.applicant?.educationLevel && (
-                        <span className="text-xs text-base-content/40 flex items-center gap-1">
-                          <GraduationCap className="w-3 h-3" />
-                          {app.applicant.educationLevel}
-                        </span>
-                      )}
-                      {app.applicant?.city && (
-                        <span className="text-xs text-base-content/40">
-                          · {app.applicant.city}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-1.5 mt-1.5">
-                      {app.applicant?.skills?.slice(0, 3).map((skill, i) => (
-                        <span
-                          key={i}
-                          className="badge badge-xs badge-ghost text-[10px]"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                      {app.applicant?.skills?.length > 3 && (
-                        <span className="text-[10px] text-base-content/30">
-                          +{app.applicant.skills.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Status & Actions */}
-                <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-3 flex-shrink-0">
-                  <span
-                    className={`badge badge-sm ${
-                      statusColors[app.status] || "badge-ghost"
-                    } font-medium`}
-                  >
-                    {app.status}
-                  </span>
-
-                  {/* Status update buttons */}
-                  <div className="flex items-center gap-1">
-                    {statusSteps.map((step, idx) => {
-                      const currentIdx = statusSteps.indexOf(app.status);
-                      const isPast = currentIdx >= idx;
-                      return (
-                        <button
-                          key={step}
-                          onClick={() => handleStatusUpdate(app._id, step)}
-                          disabled={step === app.status}
-                          title={`Mark as ${step}`}
-                          className={`btn btn-xs btn-circle transition-all ${
-                            step === app.status
-                              ? "btn-primary"
-                              : isPast
-                              ? "btn-ghost text-primary/40"
-                              : "btn-ghost text-base-content/20 hover:text-primary"
-                          }`}
-                        >
-                          {step === "rejected" ? (
-                            <XCircle className="w-3.5 h-3.5" />
-                          ) : step === "selected" ? (
-                            <CheckCircle className="w-3.5 h-3.5" />
-                          ) : (
-                            <Clock className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      );
-                    })}
-                    {/* Reject button */}
-                    {app.status !== "rejected" && (
-                      <button
-                        onClick={() => handleStatusUpdate(app._id, "rejected")}
-                        title="Reject"
-                        className="btn btn-xs btn-circle btn-ghost text-error/50 hover:text-error"
-                      >
-                        <XCircle className="w-3.5 h-3.5" />
-                      </button>
-                    )}
-                  </div>
-
-                  {app.applicant?.email && (
-                    <a
-                      href={`mailto:${app.applicant.email}`}
-                      className="text-xs text-primary flex items-center gap-1 hover:underline"
-                    >
-                      <Mail className="w-3 h-3" /> Email
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {app.coverLetter && (
-                <div className="mt-3 pt-3 border-t border-base-200">
-                  <p className="text-xs text-base-content/50 mb-1 font-medium">
-                    Cover Letter
-                  </p>
-                  <p className="text-sm text-base-content/70 line-clamp-3">
-                    {app.coverLetter}
-                  </p>
-                </div>
-              )}
-            </div>
+              app={app}
+              onStatusUpdate={handleStatusUpdate}
+            />
           ))}
         </div>
       )}

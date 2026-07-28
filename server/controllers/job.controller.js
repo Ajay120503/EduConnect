@@ -313,7 +313,10 @@ const getApplicants = async (req, res) => {
     }
 
     const applications = await Application.find(query)
-      .populate('applicant', 'name profilePic skills qualifications email educationLevel city')
+      .populate(
+        'applicant',
+        'name profilePic skills qualifications email educationLevel city state bio age experience subject profession institutionName linkedinUrl resumeUrl interests'
+      )
       .sort({ createdAt: -1 });
 
     res.json({ success: true, applications });
