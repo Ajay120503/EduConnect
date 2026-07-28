@@ -182,6 +182,7 @@ const searchUsers = async (req, res) => {
 
     const users = await User.find(query)
       .select('-password -verificationToken -resetPasswordToken')
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
