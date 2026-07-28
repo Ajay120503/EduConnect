@@ -31,14 +31,18 @@ const BottomNav = () => {
                 }`
               }
             >
-              <item.icon
-                className={`w-6 h-6 transition-transform ${
-                  isActive ? "scale-110" : ""
-                }`}
-              />
-              <span className="text-[10px] font-medium leading-tight">
-                {item.label}
-              </span>
+              {({ isActive }) => (
+                <>
+                  <item.icon
+                    className={`w-6 h-6 transition-transform ${
+                      isActive ? "scale-110" : ""
+                    }`}
+                  />
+                  <span className="text-[10px] font-medium leading-tight">
+                    {item.label}
+                  </span>
+                </>
+              )}
             </NavLink>
           ))}
 
@@ -67,14 +71,18 @@ const BottomNav = () => {
                 }`
               }
             >
-              <item.icon
-                className={`w-6 h-6 transition-transform ${
-                  isActive ? "scale-110" : ""
-                }`}
-              />
-              <span className="text-[10px] font-medium leading-tight">
-                {item.label}
-              </span>
+              {({ isActive }) => (
+                <>
+                  <item.icon
+                    className={`w-6 h-6 transition-transform ${
+                      isActive ? "scale-110" : ""
+                    }`}
+                  />
+                  <span className="text-[10px] font-medium leading-tight">
+                    {item.label}
+                  </span>
+                </>
+              )}
             </NavLink>
           ))}
         </div>
