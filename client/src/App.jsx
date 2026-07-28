@@ -118,28 +118,26 @@ function App() {
                     <div className="flex flex-1 min-h-0">
                       <Sidebar />
                       <main className="flex-1 overflow-y-auto pb-[70px] md:pb-0 scroll-smooth">
-                        <div className="max-w-3xl mx-auto px-4 md:px-6 py-4 md:py-6">
-                          <Routes>
-                            <Route path="/feed" element={<Feed />} />
-                            <Route path="/explore" element={<Explore />} />
-                            <Route path="/jobs" element={<Jobs />} />
-                            <Route path="/jobs/:id" element={<JobDetail />} />
-                            <Route path="/profile/:id" element={<Profile />} />
-                            <Route
-                              path="/edit-profile"
-                              element={<EditProfile />}
-                            />
-                            <Route path="/chat" element={<Chat />} />
-                            <Route path="/chat/:id" element={<Chat />} />
-                            <Route
-                              path="/notifications"
-                              element={<Notifications />}
-                            />
-                            <Route path="/saved" element={<SavedPosts />} />
-                            <Route path="/settings" element={<Settings />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </div>
+                        <Routes>
+                          <Route path="/feed" element={<Feed />} />
+                          <Route path="/explore" element={<Explore />} />
+                          <Route path="/jobs" element={<Jobs />} />
+                          <Route path="/jobs/:id" element={<JobDetail />} />
+                          <Route path="/profile/:id" element={<Profile />} />
+                          <Route
+                            path="/edit-profile"
+                            element={<EditProfile />}
+                          />
+                          <Route path="/chat" element={<Chat />} />
+                          <Route path="/chat/:id" element={<Chat />} />
+                          <Route
+                            path="/notifications"
+                            element={<Notifications />}
+                          />
+                          <Route path="/saved" element={<SavedPosts />} />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
                       </main>
                       <RightSidebar />
                     </div>
