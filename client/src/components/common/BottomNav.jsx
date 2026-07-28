@@ -17,32 +17,42 @@ const BottomNav = () => {
 
   return (
     <>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-base-100 border-t border-base-300 z-50 safe-area-bottom">
-        <div className="flex items-center justify-around py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-base-100/95 backdrop-blur-md border-t border-base-300/80 z-50 safe-area-bottom shadow-lg">
+        <div className="flex items-center justify-around py-1.5">
           {navItems.slice(0, 2).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-1 px-4 py-1 transition-colors ${
-                  isActive ? "text-primary" : "text-base-content/50"
+                `flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
+                  isActive
+                    ? "text-primary"
+                    : "text-base-content/40 hover:text-base-content/70"
                 }`
               }
             >
-              <item.icon className="w-6 h-6" />
-              <span className="text-xs font-medium">{item.label}</span>
+              <item.icon
+                className={`w-6 h-6 transition-transform ${
+                  isActive ? "scale-110" : ""
+                }`}
+              />
+              <span className="text-[10px] font-medium leading-tight">
+                {item.label}
+              </span>
             </NavLink>
           ))}
 
           {/* Center Create Post Button */}
           <button
             onClick={() => setShowCreatePost(true)}
-            className="flex flex-col items-center gap-1 px-4 py-1 -mt-6"
+            className="flex flex-col items-center gap-0.5 px-3 py-1 -mt-5"
           >
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg hover:bg-primary-focus transition-all">
-              <PlusCircle className="w-7 h-7 text-white" />
+            <div className="w-11 h-11 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:shadow-xl hover:scale-105 transition-all">
+              <PlusCircle className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xs font-medium text-primary mt-1">Post</span>
+            <span className="text-[10px] font-medium text-primary leading-tight">
+              Post
+            </span>
           </button>
 
           {navItems.slice(2).map((item) => (
@@ -50,13 +60,21 @@ const BottomNav = () => {
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-1 px-4 py-1 transition-colors ${
-                  isActive ? "text-primary" : "text-base-content/50"
+                `flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all ${
+                  isActive
+                    ? "text-primary"
+                    : "text-base-content/40 hover:text-base-content/70"
                 }`
               }
             >
-              <item.icon className="w-6 h-6" />
-              <span className="text-xs font-medium">{item.label}</span>
+              <item.icon
+                className={`w-6 h-6 transition-transform ${
+                  isActive ? "scale-110" : ""
+                }`}
+              />
+              <span className="text-[10px] font-medium leading-tight">
+                {item.label}
+              </span>
             </NavLink>
           ))}
         </div>

@@ -70,12 +70,7 @@ h6 {
   background: #4f46e5;
 }
 
-/* Mobile bottom nav spacing */
-@media (max-width: 767px) {
-  .main-content {
-    padding-bottom: 70px;
-  }
-}
+/* Mobile bottom nav spacing - handled inline via pb-[70px] */
 
 /* Loading skeleton animation */
 @keyframes shimmer {
