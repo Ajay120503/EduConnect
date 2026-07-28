@@ -17,6 +17,107 @@ import API from "../utils/axios";
 import CreatePostModal from "../components/post/CreatePostModal";
 import toast from "react-hot-toast";
 
+const CommentItem = ({
+  comment,
+  user,
+  onLike,
+  onReply,
+  onDelete,
+  depth = 0,
+}) => {
+  const liked = comment.likes?.includes(user?._id);
+  const timeAgo = (dateStr) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString();
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-3 group">
+        <div className="w-8 h-8 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 ring-2 ring-base-100">
+          {comment.author?.profilePic?.url ? (
+            <img
+              src={comment.author.profilePic.url}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-primary text-[10px] font-bold">
+              {comment.author?.name?.charAt(0)?.toUpperCase() || "?"}
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="bg-base-200/80 rounded-2xl px-4 py-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-semibold text-base-content/80">
+                {comment.author?.name || "Unknown"}
+              </p>
+              <span className="text-[10px] text-base-content/30 flex-shrink-0">
+                {timeAgo(comment.createdAt)}
+              </span>
+            </div>
+            <p className="text-sm mt-0.5 leading-relaxed">{comment.text}</p>
+          </div>
+          <div className="flex items-center gap-4 mt-1.5 px-1">
+            <button
+              onClick={() => onLike(comment._id)}
+              className={`text-[11px] font-medium transition-colors ${
+                liked ? "text-error" : "text-base-content/30 hover:text-error"
+              }`}
+            >
+              <span className="flex items-center gap-1">
+                <Heart className={`w-3 h-3 ${liked ? "fill-current" : ""}`} />
+                {comment.likes?.length > 0 && comment.likes.length}
+              </span>
+            </button>
+            {depth < 2 && (
+              <button
+                onClick={() => onReply(comment.author?.name)}
+                className="text-[11px] font-medium text-base-content/30 hover:text-primary transition-colors"
+              >
+                Reply
+              </button>
+            )}
+            {comment.author?._id === user?._id && (
+              <button
+                onClick={() => onDelete(comment._id)}
+                className="text-[11px] font-medium text-base-content/30 hover:text-error transition-colors ml-auto opacity-0 group-hover:opacity-100"
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Replies */}
+      {comment.replies?.length > 0 && (
+        <div className="ml-6 pl-4 border-l-2 border-primary/10 space-y-3">
+          {comment.replies.map((reply) => (
+            <CommentItem
+              key={reply._id}
+              comment={reply}
+              user={user}
+              onLike={onLike}
+              onReply={onReply}
+              onDelete={onDelete}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Feed = () => {
   const { user } = useAuthStore();
   const [posts, setPosts] = useState([]);
@@ -234,7 +335,7 @@ const Feed = () => {
                 <div className="card-body p-5">
                   {/* Author Row */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-11 h-11 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 ring-2 ring-base-100 shadow-sm">
+                    <div className="w-11 h-11 rounded-full bg-primary/10 overflow-hidden shrink-0 ring-2 ring-base-100 shadow-sm">
                       {post.author?.profilePic?.url ? (
                         <img
                           src={post.author.profilePic.url}
@@ -373,180 +474,85 @@ const Feed = () => {
       {/* Comment Modal */}
       {commentPost && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-0 md:p-4"
           onClick={() => setCommentPost(null)}
         >
           <div
-            className="bg-base-100 rounded-2xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col"
+            className="bg-base-100 md:rounded-2xl w-full h-full md:h-auto md:max-h-[85vh] max-w-lg flex flex-col shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-base-300">
-              <h3 className="font-bold font-heading text-lg">Comments</h3>
+            <div className="flex items-center justify-between px-5 py-4 border-b border-base-200 shrink-0">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold font-heading text-lg">Comments</h3>
+                {comments.length > 0 && (
+                  <span className="badge badge-sm badge-ghost">
+                    {comments.length}
+                  </span>
+                )}
+              </div>
               <button
                 onClick={() => setCommentPost(null)}
-                className="btn btn-ghost btn-circle btn-sm"
+                className="btn btn-ghost btn-circle btn-sm hover:bg-base-200"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Comments List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
               {loadingComments ? (
-                <div className="text-center py-8">
+                <div className="text-center py-12">
                   <span className="loading loading-spinner loading-md text-primary"></span>
+                  <p className="text-xs text-base-content/40 mt-2">
+                    Loading comments...
+                  </p>
                 </div>
               ) : comments.length === 0 ? (
-                <p className="text-center text-base-content/40 py-8">
-                  No comments yet. Be the first!
-                </p>
+                <div className="text-center py-12">
+                  <div className="w-14 h-14 bg-base-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <MessageCircle className="w-6 h-6 text-base-content/20" />
+                  </div>
+                  <p className="text-sm text-base-content/40 font-medium">
+                    No comments yet
+                  </p>
+                  <p className="text-xs text-base-content/30 mt-1">
+                    Be the first to share your thoughts!
+                  </p>
+                </div>
               ) : (
                 comments.map((comment) => (
-                  <div key={comment._id} className="space-y-3">
-                    {/* Top-level comment */}
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 overflow-hidden flex-shrink-0">
-                        {comment.author?.profilePic?.url ? (
-                          <img
-                            src={comment.author.profilePic.url}
-                            alt=""
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-primary text-xs font-bold">
-                            {comment.author?.name?.charAt(0)?.toUpperCase() ||
-                              "?"}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="bg-base-200 rounded-xl px-3 py-2">
-                          <p className="text-xs font-semibold">
-                            {comment.author?.name}
-                          </p>
-                          <p className="text-sm mt-0.5">{comment.text}</p>
-                        </div>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-base-content/40">
-                          <span>
-                            {new Date(comment.createdAt).toLocaleDateString()}
-                          </span>
-                          <button
-                            onClick={() => handleLikeComment(comment._id)}
-                            className={`hover:text-error ${
-                              comment.likes?.includes(user?._id)
-                                ? "text-error font-medium"
-                                : ""
-                            }`}
-                          >
-                            {comment.likes?.includes(user?._id) ? "❤️" : "♡"}{" "}
-                            {comment.likes?.length || 0}
-                          </button>
-                          <button
-                            onClick={() => {
-                              setReplyTo(comment._id);
-                              setCommentText(`@${comment.author?.name} `);
-                            }}
-                            className="hover:text-primary"
-                          >
-                            Reply
-                          </button>
-                          {comment.author?._id === user?._id && (
-                            <button
-                              onClick={() => handleDeleteComment(comment._id)}
-                              className="hover:text-error"
-                            >
-                              Delete
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Replies */}
-                        {comment.replies?.length > 0 && (
-                          <div className="ml-4 mt-2 space-y-2 border-l-2 border-base-200 pl-3">
-                            {comment.replies.map((reply) => (
-                              <div key={reply._id} className="flex gap-2">
-                                <div className="w-6 h-6 rounded-full bg-primary/10 overflow-hidden flex-shrink-0">
-                                  {reply.author?.profilePic?.url ? (
-                                    <img
-                                      src={reply.author.profilePic.url}
-                                      alt=""
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-primary text-[10px] font-bold">
-                                      {reply.author?.name
-                                        ?.charAt(0)
-                                        ?.toUpperCase() || "?"}
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="bg-base-200 rounded-xl px-3 py-2">
-                                    <p className="text-xs font-semibold">
-                                      {reply.author?.name}
-                                    </p>
-                                    <p className="text-sm mt-0.5">
-                                      {reply.text}
-                                    </p>
-                                  </div>
-                                  <div className="flex items-center gap-3 mt-1 text-xs text-base-content/40">
-                                    <span>
-                                      {new Date(
-                                        reply.createdAt
-                                      ).toLocaleDateString()}
-                                    </span>
-                                    <button
-                                      onClick={() =>
-                                        handleLikeComment(reply._id)
-                                      }
-                                      className={`hover:text-error ${
-                                        reply.likes?.includes(user?._id)
-                                          ? "text-error font-medium"
-                                          : ""
-                                      }`}
-                                    >
-                                      {reply.likes?.includes(user?._id)
-                                        ? "❤️"
-                                        : "♡"}{" "}
-                                      {reply.likes?.length || 0}
-                                    </button>
-                                    {reply.author?._id === user?._id && (
-                                      <button
-                                        onClick={() =>
-                                          handleDeleteComment(reply._id)
-                                        }
-                                        className="hover:text-error"
-                                      >
-                                        Delete
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                  <CommentItem
+                    key={comment._id}
+                    comment={comment}
+                    user={user}
+                    onLike={handleLikeComment}
+                    onReply={(authorName) => {
+                      setReplyTo(comment._id);
+                      setCommentText(`@${authorName} `);
+                    }}
+                    onDelete={handleDeleteComment}
+                  />
                 ))
               )}
             </div>
 
             {/* Comment Input */}
-            <div className="p-4 border-t border-base-300">
+            <div className="p-4 border-t border-base-200 bg-base-100 shrink-0">
               {replyTo && (
-                <div className="flex items-center justify-between mb-2 text-xs text-primary">
-                  <span>Replying to a comment</span>
+                <div className="flex items-center justify-between mb-2.5 text-xs bg-primary/5 rounded-lg px-3 py-1.5">
+                  <span className="text-primary flex items-center gap-1.5">
+                    <MessageCircle className="w-3 h-3" />
+                    Replying to a comment
+                  </span>
                   <button
                     onClick={() => {
                       setReplyTo(null);
                       setCommentText("");
                     }}
-                    className="btn btn-ghost btn-xs"
+                    className="btn btn-ghost btn-xs text-base-content/40 hover:text-error"
                   >
-                    Cancel
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}
@@ -555,23 +561,37 @@ const Feed = () => {
                   e.preventDefault();
                   handleAddComment();
                 }}
-                className="flex gap-2"
+                className="flex items-center gap-2"
               >
+                <div className="w-8 h-8 rounded-full bg-primary/10 overflow-hidden flex-shrink-0">
+                  {user?.profilePic?.url ? (
+                    <img
+                      src={user.profilePic.url}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-primary text-xs font-bold">
+                      {user?.name?.charAt(0)?.toUpperCase() || "?"}
+                    </div>
+                  )}
+                </div>
                 <input
                   type="text"
-                  className="input input-bordered flex-1 input-sm text-sm"
+                  className="input input-bordered flex-1 input-sm text-sm rounded-full"
                   placeholder={
                     replyTo ? "Write a reply..." : "Write a comment..."
                   }
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
+                  autoFocus
                 />
                 <button
                   type="submit"
-                  className="btn btn-primary btn-sm"
+                  className="btn btn-primary btn-circle btn-sm flex-shrink-0"
                   disabled={!commentText.trim()}
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-3.5 h-3.5" />
                 </button>
               </form>
             </div>
